@@ -32,6 +32,9 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.staticfiles',
+
+    # 自定义模型
+    'user',
 ]
 
 MIDDLEWARE = [
@@ -65,11 +68,11 @@ WSGI_APPLICATION = 'swiper.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'demo',
+        'NAME': 'demos',
         'HOST': 'localhost',
         'PORT': 3306,
         'USER': 'root',
-        'PASSWORD': '1111111',
+        'PASSWORD': '111111',
     }
 }
 
