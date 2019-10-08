@@ -1,6 +1,9 @@
-import requests
 import random
+import requests
+from django.core.cache import cache
+
 from swiper import cfg
+from common import keys
 
 
 def get_randcode(length: int) -> str:  # type hint写法
@@ -10,8 +13,10 @@ def get_randcode(length: int) -> str:  # type hint写法
 
 
 def send_vcode(phone):
-    vcode = get_randcode(5)
+    vcode = get_randcode(6)
+    cache.set(keys.VCODE_KEY.format(phone), vcode, 180)  # 将验证码保存到缓存中,并设置过期时间
     print('验证码:', vcode)
+
     sms_args = cfg.YZX_ARGS.copy()
     sms_args['param'] = vcode
     sms_args['mobile'] = phone
@@ -21,5 +26,3 @@ def send_vcode(phone):
         if result['code'] == '000000':
             return True
     return False
-
-

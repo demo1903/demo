@@ -23,3 +23,13 @@ class User(models.Model):
     birth_day = models.DateField(default='1990-1-1', verbose_name='出生日')
     avatar = models.CharField(max_length=256, verbose_name='个人形象')
     location = models.CharField(max_length=20, choices=LOCATION, verbose_name='常居地')
+
+    def to_dict(self):
+        return {
+            'phonenum': self.phonenum,
+            'nickname': self.nickname,
+            'sex': self.sex,
+            'birth_day': str(self.birth_day),
+            'avatar': self.avatar,
+            'location': self.location,
+        }
