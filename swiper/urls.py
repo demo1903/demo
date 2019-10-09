@@ -18,6 +18,11 @@ from django.conf.urls import url
 from user import api as user_api
 
 urlpatterns = [
+    # 短信验证码登录接口
     url(r'^api/user/get_vcode', user_api.get_vcode),
     url(r'^api/user/check_vcode', user_api.check_vcode),
+
+    # 微博登录接口
+    url(r'^weibo/wb_auth', user_api.wb_auth),
+    url(r'^weibo/wb_callback', user_api.wb_callback),
 ]

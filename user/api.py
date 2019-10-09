@@ -1,9 +1,11 @@
 from django.http import JsonResponse
 from django.core.cache import cache
+from django.shortcuts import redirect
 
 from common import keys
 from user import logics
 from common import stat
+from swiper import cfg
 from user.models import User
 
 
@@ -35,7 +37,37 @@ def check_vcode(request):
                 phonenum=phonenum,
                 nickname=phonenum,
             )
+        # 使用session记录登录状态
         request.session['uid'] = user.id
-        return JsonResponse({'code': stat.OK, 'data':user.to_dict()})
+        return JsonResponse({'code': stat.OK, 'data': user.to_dict()})
     else:
         return JsonResponse({'code': stat.INVILD_VCODE, 'data': None})
+
+
+def wb_auth(request):
+    # 用户授权页
+    return redirect(cfg.WB_AUTH_URL)
+
+
+def wb_callback(request):
+    # 微博回调接口
+    code = request.GET.get('code')
+    # 获取授权令牌
+    access_token, wb_uid = logics.get_access_token(code)
+    if not access_token:
+        return JsonResponse({'code': stat.ACCESS_TOKEN_ERR, 'data': None})
+
+    # 获取用户信息
+    user_info = logics.get_user_info(access_token, wb_uid)
+    if not user_info:
+        return JsonResponse({'code': stat.USER_INFO_ERR, 'data': None})
+
+    # 执行登录或者注册
+    try:
+        user = User.objects.get(phonenum=user_info['phonenum'])
+    except User.DoesNotExist:
+        # 如果用户不存在,直接创建出来
+        # **user_info ---> 将字典进行一个拆包,把字典的每一个key作为一个参数返回进去
+        user = User.objects.create(**user_info)
+    request.session['uid'] = user.id
+    return JsonResponse({'code': stat.OK, "data": user.to_dict()})
