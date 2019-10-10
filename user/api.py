@@ -7,6 +7,7 @@ from user import logics
 from common import stat
 from swiper import cfg
 from user.models import User
+from user.forms import UserForm, ProfileForm
 
 
 def get_vcode(request):
@@ -71,3 +72,37 @@ def wb_callback(request):
         user = User.objects.create(**user_info)
     request.session['uid'] = user.id
     return JsonResponse({'code': stat.OK, "data": user.to_dict()})
+
+
+def get_profile(request):
+    """获取个人资料"""
+    profile_data = request.user.profile.to_dict()
+    return JsonResponse({'code': stat.OK, 'data': profile_data})
+
+
+def set_profile(request):
+    """修改个人资料"""
+    user_form = UserForm(request.POST)
+    profile_form = ProfileForm(request.POST)
+
+    # 检查User的数据
+    if not user_form.is_valid():
+        return JsonResponse({'code': stat.USER_DATA_ERR, 'data': user_form.errors})
+
+    # 检查Profile的数据
+    if not profile_form.is_valid():
+        return JsonResponse({'code': stat.PROFILE_DATA_ERR, 'data': profile_form.errors})
+    user = request.user
+    # 保存用户的数据
+    user.__dict__.update(user_form.cleaned_data)
+    user.save()
+
+    # 保存交友资料的数据
+    user.profile.__dict__.update(profile_form.cleaned_data)
+    user.profile.save()
+    return JsonResponse({'code': stat.OK, 'data': None})
+
+
+def upload_avatar(request):
+    """上传个人形象"""
+    return JsonResponse
