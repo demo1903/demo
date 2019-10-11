@@ -1,9 +1,12 @@
+import os
 import random
 import requests
 from django.core.cache import cache
 
 from swiper import cfg
 from common import keys
+from libs.qn_cloud import upload_to_qn
+from task import celery_app
 
 
 def get_randcode(length: int) -> str:  # type hint写法
@@ -60,3 +63,32 @@ def get_user_info(access_token, wb_uid):
         }
         return user_info
     return None
+
+
+def save_upload_avatar(user, upload_avatar):
+    """保存上传的头像"""
+    filename = 'Avatar-{}'.format(user.id)  # 文件名
+    filepath = '/tmp/{}'.format(filename)  # 文件路径
+
+    with open(filepath, 'wb') as fp:
+        for chunk in upload_avatar.chunks():
+            fp.write(chunk)
+
+    return filename, filepath
+
+
+@celery_app.task
+def handle_avatar(user, upload_avatar):
+    """处理个人头像"""
+    # 将文件保存到本地
+    filename, filepath = save_upload_avatar(user, upload_avatar)
+
+    # 将文件上传到七牛
+    avatar_url = upload_to_qn(filename, filepath)
+
+    # 保存 avatar_url
+    user.avatar = avatar_url
+    user.save()
+
+    # 删除本地临时文件
+    os.remove(filepath)

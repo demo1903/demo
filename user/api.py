@@ -105,4 +105,6 @@ def set_profile(request):
 
 def upload_avatar(request):
     """上传个人形象"""
+    avatar = request.FILES.get('avatar')
+    logics.handle_avatar.delay(request.user, avatar)
     return render_json()
