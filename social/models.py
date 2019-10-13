@@ -1,5 +1,6 @@
 from django.db import models
-from django.db.models import Q
+
+from common import stat
 
 
 class Swiped(models.Model):
@@ -25,11 +26,14 @@ class Swiped(models.Model):
         """执行一次滑动"""
         # 检查 stype 是否正确
         if stype not in ['like', 'superlike', 'dislike']:
-            return  # TODO:返回状态码
+            # 返回滑动类型错误
+            raise stat.SwiperTypeErr
 
         # 检查是否已经滑动过当前用户
         if cls.objects.filter(uid=uid, sid=sid).exists():
-            return  # TODO:重复滑动状态码
+            # 返回重复滑动错误
+            raise stat.SwipeRepeatErr
+
         return cls.objects.create(uid=uid, sid=sid, stype=stype)
 
 

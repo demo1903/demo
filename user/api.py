@@ -18,7 +18,7 @@ def get_vcode(request):
     if logics.send_vcode(phonenum):
         return render_json()
     else:
-        return render_json(code=stat.VCODE_ERR)
+        raise stat.VCODE_ERR
 
 
 def check_vcode(request):
@@ -42,7 +42,7 @@ def check_vcode(request):
         request.session['uid'] = user.id
         return render_json(data=user.to_dict())
     else:
-        return render_json(code=stat.INVILD_VCODE)
+        raise stat.INVILD_VCODE
 
 
 def wb_auth(request):
@@ -56,12 +56,12 @@ def wb_callback(request):
     # 获取授权令牌
     access_token, wb_uid = logics.get_access_token(code)
     if not access_token:
-        return render_json(code=stat.ACCESS_TOKEN_ERR)
+        raise stat.ACCESS_TOKEN_ERR
 
     # 获取用户信息
     user_info = logics.get_user_info(access_token, wb_uid)
     if not user_info:
-        return render_json(code=stat.USER_INFO_ERR)
+        raise stat.USER_INFO_ERR
 
     # 执行登录或者注册
     try:
@@ -87,11 +87,11 @@ def set_profile(request):
 
     # 检查User的数据
     if not user_form.is_valid():
-        return render_json(code=stat.USER_DATA_ERR, data=user_form.errors)
+        raise stat.USER_DATA_ERR(data=user_form.errors)
 
     # 检查Profile的数据
     if not profile_form.is_valid():
-        return render_json(code=stat.PROFILE_DATA_ERR, data=profile_form.errors)
+        raise stat.PROFILE_DATA_ERR(data=profile_form.errors)
     user = request.user
     # 保存用户的数据
     user.__dict__.update(user_form.cleaned_data)
@@ -100,7 +100,7 @@ def set_profile(request):
     # 保存交友资料的数据
     user.profile.__dict__.update(profile_form.cleaned_data)
     user.profile.save()
-    return render_json(code=stat.OK, data=None)
+    return render_json()
 
 
 def upload_avatar(request):
