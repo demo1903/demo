@@ -33,14 +33,9 @@ def rcmd(user):
 def like_someone(user, sid):
     """喜欢某人"""
 
-    # 检查是否已经滑过_喜欢了
-    if Swiped.is_liked(user.id, sid):
-        return '已经喜欢过了'
+    Swiped.swipe(user.id, sid, 'like')  # 添加滑动记录
 
-    # 添加滑动记录
-    Swiped.objects.create(uid=user.id, sid=sid, stype='like')
-
-    # 检查对方是否喜欢过自己,如果喜欢过自己,匹配成好友
+    # 检查对方是否喜欢过自己
     if Swiped.is_liked(sid, user.id):
         # TODO:如果对方喜欢过自己,匹配成好友
         Friend.make_friend(user.id, sid)

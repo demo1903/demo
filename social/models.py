@@ -20,6 +20,18 @@ class Swiped(models.Model):
         """检查是否喜欢过某人"""
         return cls.objects.filter(uid=uid, sid=sid, stype__in=['like', 'superlike']).exists()
 
+    @classmethod
+    def swipe(cls, uid, sid, stype):
+        """执行一次滑动"""
+        # 检查 stype 是否正确
+        if stype not in ['like', 'superlike', 'dislike']:
+            return  # TODO:返回状态码
+
+        # 检查是否已经滑动过当前用户
+        if cls.objects.filter(uid=uid, sid=sid).exists():
+            return  # TODO:重复滑动状态码
+        return cls.objects.create(uid=uid, sid=sid, stype=stype)
+
 
 class Friend(models.Model):
     """好友关系表"""
@@ -29,4 +41,4 @@ class Friend(models.Model):
     @classmethod
     def make_friend(cls, uid, sid):
         uid1, uid2 = (sid, uid) if uid > sid else (uid, sid)
-        cls.objects.create(uid1=uid1, uid2=uid2)
+        cls.objects.get_or_create(uid1=uid1, uid2=uid2)
