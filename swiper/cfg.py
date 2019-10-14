@@ -48,3 +48,10 @@ QN_ACCESS_KEY = 'kEM0sRR-meB92XU43_a6xZqhiyyTuu5yreGCbFtw'
 QN_SECRET_KEY = 'QxTKqgnOb_UVldphU261qu9IdzmjkgGHh6GQVPPy'
 QN_BASE_URL = 'http://py4hx1gc8.bkt.clouddn.com'
 QN_BUCKET = 'sh1903'
+
+# Redis相关配置
+REDIS = {
+    'host': 'localhost',
+    'port': '6379',
+    'db': 3
+}
